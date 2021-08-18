@@ -11,6 +11,9 @@ export class MarkdownIndex {
 
   // index base configuration for user, default value is "#"
   private _indexBase: string = "#";
+  
+  // index start level configuration for user, default value is 1
+  private _indexStartLevel = 1;
 
   constructor() {
       // load the configuration
@@ -18,6 +21,10 @@ export class MarkdownIndex {
       const configBase = configuration.get<string>("indexBase");
       if (configBase && configBase.length > 0) {
           this._indexBase = configBase;
+      }
+      const configStartLevel = configuration.get("indexStartLevel");
+      if (configStartLevel && /^[1-9][0-9]*$/.test(configStartLevel)) {
+          this._indexStartLevel = Number(configStartLevel);
       }
   }
 
@@ -66,11 +73,14 @@ export class MarkdownIndex {
 
           if (isInCodeArea == false && line.startsWith(this._indexBase)) {
               // find the start mark count
-              targetMarkCount = this._countStartsWith(
+              var curCount = this._countStartsWith(
                   x => { return x == this._indexBase },
                   line.split("")
               );
-              break;
+              if (curCount >= this._indexStartLevel) {
+                    targetMarkCount = curCount;
+                    break;
+              }
           }
           cursor++;
           
